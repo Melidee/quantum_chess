@@ -5,7 +5,7 @@
 #include "raylib.h"
 
 qColor turn = white;
-TurnState turn_state = {0, 0, 0, 0, 0, 0};
+Coordinate selected = {-1, -1};
 Board board;
 
 int main() {
@@ -18,14 +18,30 @@ int main() {
         ClearBackground(BLACK);
         draw_board_boxes();
         Vector2 mouse_pos = GetMousePosition();
-        DrawRectangle(((int)mouse_pos.x / 100) * square_size,
-                      ((int)mouse_pos.y / 100) * square_size, square_size,
-                      square_size, GRAY);
+        Coordinate hovering = {(int)mouse_pos.x / square_size, (int)mouse_pos.y / square_size};
+        DrawRectangle(hovering.x * square_size, hovering.y * square_size, square_size,
+                      square_size, DARKBROWN);
         draw_pieces();
-
         EndDrawing();
+        if (selected.x == -1) {
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
+                board.board[hovering.x][hovering.y].kind != empty) {
+                selected = hovering;
+                
+            }
+            continue;
+        }
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            if (is_valid_move(board, selected, hovering)) {
+                board.board[hovering.x][hovering.y].kind = board.board[selected.x][selected.y].kind;
+                board.board[hovering.x][hovering.y].color = board.board[selected.x][selected.y].color;
+                board.board[selected.x][selected.y].kind = empty;
+                board.board[selected.x][selected.y].color = no_color;
+                selected.x = -1;
+                selected.y = -1;
+            }
+        }
     }
-
     CloseWindow();
 }
 
@@ -51,6 +67,12 @@ void draw_pieces() {
                      piece.color == white ? WHITE : BLACK);
         }
     }
+}
+
+bool is_valid_move(Board board, Coordinate from, Coordinate to) {
+    printf("check selected %d %d\n", from.x, from.y);
+    return board.board[from.x][from.y].kind != empty &&
+           board.board[to.x][to.y].kind == empty;
 }
 
 Board init_board() {

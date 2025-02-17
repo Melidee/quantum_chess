@@ -1,10 +1,8 @@
+#include <stdbool.h>
+
 typedef struct {
     int selected_x;
     int selected_y;
-    int half_place_x;
-    int half_place_y;
-    int full_place_x;
-    int full_place_y;
 } TurnState;
 
 typedef enum {
@@ -44,6 +42,14 @@ typedef struct {
 
 const int square_size = 100;
 Board init_board();
+
+
+typedef struct {
+    int x;
+    int y;
+} Coordinate;
+
+bool is_valid_move(Board board, Coordinate from, Coordinate to);
 
 void draw_board_boxes();
 void draw_pieces();
