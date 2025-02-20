@@ -37,11 +37,11 @@ typedef struct {
 } Piece;
 
 typedef struct {
-    Piece board[8][8];
+    
 } Board;
 
 const int square_size = 100;
-Board init_board();
+void init_board();
 
 
 typedef struct {
@@ -49,7 +49,9 @@ typedef struct {
     int y;
 } Coordinate;
 
-bool is_valid_move(Board board, Coordinate from, Coordinate to);
+bool is_valid_move(Piece board[8][8], Coordinate from, Coordinate to, PieceKind kind);
+void clear_possibilities(bool buf[8][8]);
+void check_possible_moves(bool buf[8][8], Piece board[8][8], Coordinate from, PieceKind kind);
 
 void draw_board_boxes();
 void draw_pieces();
