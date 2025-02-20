@@ -15,31 +15,24 @@ int main() {
 
     while (!WindowShouldClose()) {
         Vector2 mouse_pos = GetMousePosition();
-        Coordinate hover_space = {(int)mouse_pos.x / square_size,
-                                  (int)mouse_pos.y / square_size};
+        Coordinate hover_space = {(int)mouse_pos.x / square_size, (int)mouse_pos.y / square_size};
         Piece hover_piece = board[hover_space.x][hover_space.y];
 
         BeginDrawing();
         ClearBackground(BLACK);
         draw_board_boxes(possible_moves);
-        DrawRectangle(hover_space.x * square_size, hover_space.y * square_size,
-                      square_size, square_size, DARKBROWN);
+        DrawRectangle(hover_space.x * square_size, hover_space.y * square_size, square_size, square_size, DARKBROWN);
         draw_pieces(board);
         EndDrawing();
 
-        bool can_select =
-            hover_piece.kind != empty && hover_piece.color == turn;
+        bool can_select = hover_piece.kind != empty && hover_piece.color == turn;
         if (can_select && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             selected = hover_space;
-            check_possible_moves(possible_moves, board, selected,
-                                 hover_piece.kind);
+            check_possible_moves(possible_moves, board, selected, hover_piece.kind);
             continue;
-        } else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) &&
-                   possible_moves[hover_space.x][hover_space.y]) {
-            board[hover_space.x][hover_space.y].kind =
-                board[selected.x][selected.y].kind;
-            board[hover_space.x][hover_space.y].color =
-                board[selected.x][selected.y].color;
+        } else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && possible_moves[hover_space.x][hover_space.y]) {
+            board[hover_space.x][hover_space.y].kind = board[selected.x][selected.y].kind;
+            board[hover_space.x][hover_space.y].color = board[selected.x][selected.y].color;
             board[selected.x][selected.y].kind = empty;
             board[selected.x][selected.y].color = no_color;
             selected.x = -1;
@@ -47,6 +40,7 @@ int main() {
             turn = turn == white ? black : white;
         }
     }
+
     CloseWindow();
 }
 
@@ -54,11 +48,9 @@ void draw_board_boxes(bool possibilities[8][8]) {
     for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 8; y++) {
             Color color = x % 2 == y % 2 ? BEIGE : BROWN;
-            DrawRectangle(x * square_size, y * square_size, square_size,
-                          square_size, color);
+            DrawRectangle(x * square_size, y * square_size, square_size, square_size, color);
             if (possibilities[x][y]) {
-                DrawCircle(x * square_size + square_size / 2,
-                           y * square_size + square_size / 2, square_size / 4,
+                DrawCircle(x * square_size + square_size / 2, y * square_size + square_size / 2, square_size / 4,
                            DARKBROWN);
             }
         }
@@ -72,15 +64,13 @@ void draw_pieces(Piece board[8][8]) {
             if (piece.kind == empty) {
                 continue;
             }
-            DrawText(piece_icons[piece.kind], x * square_size + square_size / 3,
-                     y * square_size + square_size / 3, square_size / 2,
-                     piece.color == white ? WHITE : BLACK);
+            DrawText(piece_icons[piece.kind], x * square_size + square_size / 3, y * square_size + square_size / 3,
+                     square_size / 2, piece.color == white ? WHITE : BLACK);
         }
     }
 }
 
-void check_possible_moves(bool possibilities[8][8], Piece board[8][8],
-                          Coordinate from, PieceKind kind) {
+void check_possible_moves(bool possibilities[8][8], Piece board[8][8], Coordinate from, PieceKind kind) {
     switch (kind) {
         case pawn:
             if (board[from.x][from.y].color == white) {
@@ -88,15 +78,17 @@ void check_possible_moves(bool possibilities[8][8], Piece board[8][8],
                 if (from.y == 6) {
                     possibilities[from.x][from.y - 2] = true;
                 }
+                bool north_is_enemy = from.y - 1 >= 0 && board[from.x][from.y - 1].color == black;
+                if (north_is_enemy) {
+                    possibilities[from.x][from.y - 1] = false;
+                }
                 bool northeast_is_enemy =
-                    from.x - 1 >= 0 && from.y - 1 >= 0 &&
-                    board[from.x + 1][from.y - 1].color == black;
+                    from.x - 1 >= 0 && from.y - 1 >= 0 && board[from.x + 1][from.y - 1].color == black;
                 if (northeast_is_enemy) {
-                    possibilities[from.x - 1][from.y - 1] = true;
+                    possibilities[from.x + 1][from.y - 1] = true;
                 }
                 bool northwest_is_enemy =
-                    from.x - 1 >= 0 && from.y - 1 >= 0 &&
-                    board[from.x - 1][from.y - 1].color == black;
+                    from.x - 1 >= 0 && from.y - 1 >= 0 && board[from.x - 1][from.y - 1].color == black;
                 if (northwest_is_enemy) {
                     possibilities[from.x - 1][from.y - 1] = true;
                 }
@@ -105,15 +97,17 @@ void check_possible_moves(bool possibilities[8][8], Piece board[8][8],
                 if (from.y == 1) {
                     possibilities[from.x][from.y + 2] = true;
                 }
+                bool south_is_enemy = from.y - 1 >= 0 && board[from.x][from.y + 1].color == white;
+                if (south_is_enemy) {
+                    possibilities[from.x][from.y + 1] = false;
+                }
                 bool southeast_is_enemy =
-                    from.x + 1 < 8 && from.y + 1 < 8 &&
-                    board[from.x + 1][from.y + 1].color == white;
+                    from.x + 1 < 8 && from.y + 1 < 8 && board[from.x + 1][from.y + 1].color == white;
                 if (southeast_is_enemy) {
-                    possibilities[from.x - 1][from.y + 1] = true;
+                    possibilities[from.x + 1][from.y + 1] = true;
                 }
                 bool southwest_is_enemy =
-                    from.x - 1 >= 0 && from.y + 1 < 8 &&
-                    board[from.x - 1][from.y + 1].color == white;
+                    from.x - 1 >= 0 && from.y + 1 < 8 && board[from.x - 1][from.y + 1].color == white;
                 if (southwest_is_enemy) {
                     possibilities[from.x - 1][from.y + 1] = true;
                 }
@@ -137,14 +131,11 @@ void check_possible_moves(bool possibilities[8][8], Piece board[8][8],
             break;
         case knight:  // WORKING!!!
             int checks[8][2] = {
-                {from.x + 2, from.y + 1}, {from.x + 2, from.y - 1},
-                {from.x - 2, from.y + 1}, {from.x - 2, from.y - 1},
-                {from.x + 1, from.y + 2}, {from.x + 1, from.y - 2},
-                {from.x - 1, from.y + 2}, {from.x - 1, from.y - 2},
+                {from.x + 2, from.y + 1}, {from.x + 2, from.y - 1}, {from.x - 2, from.y + 1}, {from.x - 2, from.y - 1},
+                {from.x + 1, from.y + 2}, {from.x + 1, from.y - 2}, {from.x - 1, from.y + 2}, {from.x - 1, from.y - 2},
             };
             for (int i = 0; i < 8; i++) {
-                if (checks[i][0] >= 0 && checks[i][0] < 8 &&
-                    checks[i][1] >= 0 && checks[i][1] < 8) {
+                if (checks[i][0] >= 0 && checks[i][0] < 8 && checks[i][1] >= 0 && checks[i][1] < 8) {
                     possibilities[checks[i][0]][checks[i][1]] = true;
                 }
             }
@@ -171,14 +162,11 @@ void check_possible_moves(bool possibilities[8][8], Piece board[8][8],
             break;
         case king:  // WORKING!!!
             int k_checks[8][2] = {
-                {from.x + 1, from.y},     {from.x - 1, from.y},
-                {from.x, from.y + 1},     {from.x, from.y - 1},
-                {from.x + 1, from.y + 1}, {from.x - 1, from.y - 1},
-                {from.x + 1, from.y - 1}, {from.x - 1, from.y + 1},
+                {from.x + 1, from.y},     {from.x - 1, from.y},     {from.x, from.y + 1},     {from.x, from.y - 1},
+                {from.x + 1, from.y + 1}, {from.x - 1, from.y - 1}, {from.x + 1, from.y - 1}, {from.x - 1, from.y + 1},
             };
             for (int i = 0; i < 8; i++) {
-                if (k_checks[i][0] >= 0 && k_checks[i][0] < 8 &&
-                    k_checks[i][1] >= 0 && k_checks[i][1] < 8) {
+                if (k_checks[i][0] >= 0 && k_checks[i][0] < 8 && k_checks[i][1] >= 0 && k_checks[i][1] < 8) {
                     possibilities[k_checks[i][0]][k_checks[i][1]] = true;
                 }
             }
@@ -188,8 +176,7 @@ void check_possible_moves(bool possibilities[8][8], Piece board[8][8],
     }
     for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 8; y++) {
-            bool is_friendly_space =
-                board[x][y].color == board[from.x][from.y].color;
+            bool is_friendly_space = board[x][y].color == board[from.x][from.y].color;
             if (possibilities[x][y] && is_friendly_space) {
                 possibilities[x][y] = false;
             }
