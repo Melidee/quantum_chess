@@ -31,12 +31,11 @@ int main() {
             hover_piece.kind != empty && hover_piece.color == turn;
         if (can_select && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             selected = hover_space;
-
             check_possible_moves(possible_moves, board, selected,
                                  hover_piece.kind);
             continue;
         } else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) &&
-            possible_moves[hover_space.x][hover_space.y]) {
+                   possible_moves[hover_space.x][hover_space.y]) {
             board[hover_space.x][hover_space.y].kind =
                 board[selected.x][selected.y].kind;
             board[hover_space.x][hover_space.y].color =
@@ -84,6 +83,41 @@ void check_possible_moves(bool possibilities[8][8], Piece board[8][8],
                           Coordinate from, PieceKind kind) {
     switch (kind) {
         case pawn:
+            if (board[from.x][from.y].color == white) {
+                possibilities[from.x][from.y - 1] = true;
+                if (from.y == 6) {
+                    possibilities[from.x][from.y - 2] = true;
+                }
+                bool northeast_is_enemy =
+                    from.x - 1 >= 0 && from.y - 1 >= 0 &&
+                    board[from.x + 1][from.y - 1].color == black;
+                if (northeast_is_enemy) {
+                    possibilities[from.x - 1][from.y - 1] = true;
+                }
+                bool northwest_is_enemy =
+                    from.x - 1 >= 0 && from.y - 1 >= 0 &&
+                    board[from.x - 1][from.y - 1].color == black;
+                if (northwest_is_enemy) {
+                    possibilities[from.x - 1][from.y - 1] = true;
+                }
+            } else {
+                possibilities[from.x][from.y + 1] = true;
+                if (from.y == 1) {
+                    possibilities[from.x][from.y + 2] = true;
+                }
+                bool southeast_is_enemy =
+                    from.x + 1 < 8 && from.y + 1 < 8 &&
+                    board[from.x + 1][from.y + 1].color == white;
+                if (southeast_is_enemy) {
+                    possibilities[from.x - 1][from.y + 1] = true;
+                }
+                bool southwest_is_enemy =
+                    from.x - 1 >= 0 && from.y + 1 < 8 &&
+                    board[from.x - 1][from.y + 1].color == white;
+                if (southwest_is_enemy) {
+                    possibilities[from.x - 1][from.y + 1] = true;
+                }
+            }
             break;
         case rook:
             for (int i = 1; i < 8; i++) {
