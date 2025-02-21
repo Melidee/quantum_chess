@@ -28,6 +28,7 @@ typedef enum {
 typedef struct {
     PieceKind kind;
     qColor color;
+    int split_key;
 } Piece;
 
 const int square_size = 100;

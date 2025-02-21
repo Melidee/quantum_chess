@@ -114,22 +114,32 @@ void check_possible_moves(bool possibilities[8][8], Piece board[8][8], Coordinat
             }
             break;
         case rook:
-            for (int i = 1; i < 8; i++) {
-                if (from.x + i < 8) {
-                    possibilities[from.x + i][from.y] = true;
+            for (int i = 1; from.x + i < 8; i++) {
+                if (board[from.x + i][from.y].kind != empty) {
+                    break;
                 }
-                if (from.x - i >= 0) {
-                    possibilities[from.x - i][from.y] = true;
+                possibilities[from.x + i][from.y] = true;
+            }
+            for (int i = 1; from.x - i < 8; i++) {
+                if (board[from.x - i][from.y].kind != empty) {
+                    break;
                 }
-                if (from.y + i < 8) {
-                    possibilities[from.x][from.y + i] = true;
+                possibilities[from.x - i][from.y] = true;
+            }
+            for (int i = 1; from.y + i < 8; i++) {
+                if (board[from.x][from.y + i].kind != empty) {
+                    break;
                 }
-                if (from.y - i >= 0) {
-                    possibilities[from.x][from.y - i] = true;
+                possibilities[from.x][from.y + i] = true;
+            }
+            for (int i = 1; from.y - i < 8; i++) {
+                if (board[from.x][from.y - i].kind != empty) {
+                    break;
                 }
+                possibilities[from.x][from.y - i] = true;
             }
             break;
-        case knight:  // WORKING!!!
+        case knight:
             int checks[8][2] = {
                 {from.x + 2, from.y + 1}, {from.x + 2, from.y - 1}, {from.x - 2, from.y + 1}, {from.x - 2, from.y - 1},
                 {from.x + 1, from.y + 2}, {from.x + 1, from.y - 2}, {from.x - 1, from.y + 2}, {from.x - 1, from.y - 2},
@@ -141,26 +151,36 @@ void check_possible_moves(bool possibilities[8][8], Piece board[8][8], Coordinat
             }
             break;
         case bishop:
-            for (int i = 1; i < 8; i++) {
-                if (from.x + i < 8 && from.y + i < 8) {
-                    possibilities[from.x + i][from.y + i] = true;
+            for (int i = 1; from.x + i < 8 && from.y + i < 8; i++) {
+                if (board[from.x + i][from.y + i].kind != empty) {
+                    break;
                 }
-                if (from.x - i >= 0 && from.y - i >= 0) {
-                    possibilities[from.x - i][from.y - i] = true;
+                possibilities[from.x + i][from.y + i] = true;
+            }
+            for (int i = 1; from.x - i < 8 && from.y - i < 8; i++) {
+                if (board[from.x - i][from.y - i].kind != empty) {
+                    break;
                 }
-                if (from.x - i >= 0 && from.y + i < 8) {
-                    possibilities[from.x - i][from.y + i] = true;
+                possibilities[from.x - i][from.y - i] = true;
+            }
+            for (int i = 1; from.x + i < 8 && from.y - i < 8; i++) {
+                if (board[from.x + i][from.y - i].kind != empty) {
+                    break;
                 }
-                if (from.x + i < 8 && from.y - i >= 0) {
-                    possibilities[from.x + i][from.y - i] = true;
+                possibilities[from.x + i][from.y - i] = true;
+            }
+            for (int i = 1; from.x - i < 8 && from.y + i < 8; i++) {
+                if (board[from.x - i][from.y + i].kind != empty) {
+                    break;
                 }
+                possibilities[from.x - i][from.y + i] = true;
             }
             break;
         case queen:
             check_possible_moves(possibilities, board, from, rook);
             check_possible_moves(possibilities, board, from, bishop);
             break;
-        case king:  // WORKING!!!
+        case king:
             int k_checks[8][2] = {
                 {from.x + 1, from.y},     {from.x - 1, from.y},     {from.x, from.y + 1},     {from.x, from.y - 1},
                 {from.x + 1, from.y + 1}, {from.x - 1, from.y - 1}, {from.x + 1, from.y - 1}, {from.x - 1, from.y + 1},
@@ -193,21 +213,21 @@ void clear_possibilities(bool possibilities[8][8]) {
 }
 
 void init_board(Piece board[8][8]) {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            board[i][j].kind = empty;
-            board[i][j].color = no_color;
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
+            board[x][y].kind = empty;
+            board[x][y].color = no_color;
+            board[x][y].split_key = 0;
         }
     }
-    for (int i = 0; i < 8; i++) {
-        board[i][0].color = black;
-        board[i][1].color = black;
-        board[i][1].kind = pawn;
-    }
-    for (int i = 0; i < 8; i++) {
-        board[i][7].color = white;
-        board[i][6].color = white;
-        board[i][6].kind = pawn;
+    for (int x = 0; x < 8; x++) {
+        board[x][0].color = black;
+        board[x][1].color = black;
+        board[x][1].kind = pawn;
+
+        board[x][7].color = white;
+        board[x][6].color = white;
+        board[x][6].kind = pawn;
     }
     board[0][0].kind = rook;
     board[1][0].kind = knight;
