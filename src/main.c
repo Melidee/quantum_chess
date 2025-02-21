@@ -12,6 +12,7 @@ int main() {
     clear_possibilities(possible_moves);
     qColor turn = white;
     Coordinate selected = {-1, -1};
+    int next_split = 1;
 
     while (!WindowShouldClose()) {
         Vector2 mouse_pos = GetMousePosition();
@@ -26,15 +27,24 @@ int main() {
         EndDrawing();
 
         bool can_select = hover_piece.kind != empty && hover_piece.color == turn;
-        if (can_select && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if (can_select && (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_RIGHT_BUTTON))) {
             selected = hover_space;
             check_possible_moves(possible_moves, board, selected, hover_piece.kind);
             continue;
-        } else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && possible_moves[hover_space.x][hover_space.y]) {
-            board[hover_space.x][hover_space.y].kind = board[selected.x][selected.y].kind;
-            board[hover_space.x][hover_space.y].color = board[selected.x][selected.y].color;
+        } else if ((IsMouseButtonDown(MOUSE_LEFT_BUTTON)) && possible_moves[hover_space.x][hover_space.y]) {
+            board[hover_space.x][hover_space.y] = board[selected.x][selected.y];
             board[selected.x][selected.y].kind = empty;
             board[selected.x][selected.y].color = no_color;
+            board[selected.x][selected.y].split_key = 0;
+            selected.x = -1;
+            clear_possibilities(possible_moves);
+            turn = turn == white ? black : white;
+        } else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON) && possible_moves[hover_space.x][hover_space.y] &&
+                   board[selected.x][selected.y].split_key == 0) {
+            board[hover_space.x][hover_space.y] = board[selected.x][selected.y];
+            board[hover_space.x][hover_space.y].split_key = next_split;
+            board[selected.x][selected.y].split_key = next_split;
+            next_split++;
             selected.x = -1;
             clear_possibilities(possible_moves);
             turn = turn == white ? black : white;
@@ -66,6 +76,10 @@ void draw_pieces(Piece board[8][8]) {
             }
             DrawText(piece_icons[piece.kind], x * square_size + square_size / 3, y * square_size + square_size / 3,
                      square_size / 2, piece.color == white ? WHITE : BLACK);
+            if (piece.split_key > 0) {
+                DrawText("1/2", x * square_size + square_size * 3 / 5, y * square_size + square_size * 3 / 4,
+                         square_size / 5, piece.color == white ? WHITE : BLACK);
+            }
         }
     }
 }
